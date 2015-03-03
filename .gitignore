@@ -1,0 +1,7 @@
+hosts
+ansible.cfg
+
+#not my custom roles
+roles/geerlingguy.apache/
+roles/mtpereira.passenger/
+roles/rvm_io.rvm1-ruby

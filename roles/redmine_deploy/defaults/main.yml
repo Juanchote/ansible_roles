@@ -1,0 +1,6 @@
+---
+redmine_deploy_path: '/var/www/redmine_project'
+redmine_git_repo: 'git@github.com:remote_user/Repo.git'
+redmine_plugin_name: 'redmine_plugin'
+branch: 'master'
+

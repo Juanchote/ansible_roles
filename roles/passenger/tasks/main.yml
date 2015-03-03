@@ -1,0 +1,32 @@
+---
+  - name: register ruby version variable
+    command: bash -lc 'rvm current'
+    register: ruby_version
+    sudo: yes
+
+  - name: Install curl and httpd-devel
+    action: yum pkg={{item}} state=installed
+    sudo: yes
+    with_items:
+      - curl-devel
+      - httpd-devel
+
+  - name: install mod_passenger
+    command: bash -lc 'gem install passenger --version "4.0.59"' creates={{rvm_home}}/gems/{{ruby_version.stdout}}/bin/passenger-install-apache2-module
+    sudo: yes
+    ignore_errors: True
+
+  - name: register passenger version variable
+    command: bash -lc 'passenger-config --version'
+    register: passenger_version
+    sudo: yes
+
+  - name: build mod_passenger for apache
+    command: bash -lc 'passenger-install-apache2-module -a' creates={{rvm_home}}/gems/{{ruby_version.stdout}}/gems/passenger-{{passenger_version.stdout}}/buildout/apache2/mod_passenger.so
+    sudo: yes
+
+  - name: configure apache for mod_passenger
+    action: template src=passenger.j2 dest=/etc/httpd/conf.d/passenger.conf
+    sudo: yes
+    notify:
+      - restart httpd

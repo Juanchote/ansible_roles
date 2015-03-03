@@ -1,0 +1,44 @@
+---
+  - name: register migrations count before checkout.
+    shell: ls | wc -l
+    register: plugin_migrations_before
+    args:
+      chdir: "{{ redmine_deploy_path }}/plugins/{{ redmine_plugin_name }}/db/migrate"
+    changed_when: plugin_migrations_before.stdout < 0
+
+  - name: Gemfile status before checkout.
+    stat: path="{{ redmine_deploy_path }}/plugins/{{ redmine_plugin_name }}/Gemfile"
+    register: gemfile_before
+
+  - name: git checking out branch
+    git: repo={{ redmine_git_repo }}
+      dest={{ redmine_deploy_path }}
+      version={{ branch }}
+    register: code_version
+    notify:
+      - restart httpd
+
+  - name: register migrations count after checkout.
+    shell: ls | wc -l
+    register: plugin_migrations_after
+    args:
+      chdir: "{{ redmine_deploy_path }}/plugins/{{ redmine_plugin_name }}/db/migrate"
+    changed_when: plugin_migrations_after.stdout > plugin_migrations_before.stdout
+
+  - name: Gemfile after checkout.
+    stat: path="{{ redmine_deploy_path }}/plugins/{{ redmine_plugin_name }}/Gemfile"
+    register: gemfile_after
+
+  - name: Launching migrate if needed.
+    command: bash -lc 'rake redmine:plugins:migrate RAILS_ENV=production'
+    args:
+      chdir: "{{ redmine_deploy_path }}"
+    when: plugin_migrations_before.stdout < plugin_migrations_after.stdout
+
+  - name: Launching bundle if needed.
+    command: bash -lc 'bundle'
+    args:
+      chdir: "{{ redmine_deploy_path }}"
+    when: gemfile_before.stat.md5 != gemfile_after.stat.md5
+    notify:
+      - restart httpd
