@@ -1,5 +1,7 @@
 hosts
 ansible.cfg
+*.swp
+*.swo
 
 #not my custom roles
 roles/geerlingguy.apache/
