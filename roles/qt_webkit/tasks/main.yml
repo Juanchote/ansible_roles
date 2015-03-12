@@ -1,0 +1,68 @@
+---
+  - name: required libraries
+    action: yum pkg={{item}} state=installed
+    with_items:
+    - xorg-x11-server-Xvfb
+    - firefox
+    - libxcb
+    - libxcb-devel
+    - xcb-util
+    - xcb-util-devel
+    - flex
+    - bison
+    - gperf
+    - libicu-devel
+    - libxslt-devel
+    - libXrender-devel
+    - libXext-devel
+
+  - name: create Downloads dir
+    file: path={{ qtwk_download_path }}
+      state=directory
+      owner={{ qtwk_user }}
+
+  - name: download QT source
+    get_url: url="http://download.qt.io/official_releases/qt/{{ qtwk_version[:-2] }}/{{ qtwk_version }}/single/qt-everywhere-opensource-src-{{ qtwk_version }}.tar.gz"
+      dest="{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}.tar.gz"
+      force=no
+
+  - name: unzip QT
+    unarchive: src="{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}.tar.gz"
+      dest={{ qtwk_download_path }}
+      creates="{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}/configure"
+      copy=no
+
+  - name: configure QT and create qmake
+    shell: yes 'yes' | ./configure -opensource -nomake examples -nomake tests -qt-xcb
+    args:
+      chdir: "{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}"
+
+  - name: launch gmake
+    command: bash -lc 'gmake'
+    sudo: yes
+    sudo_user: "{{ qtwk_user }}"
+    args:
+      chdir: "{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}"
+    notify:
+      - change download path permissions
+      - change gmake dir path permissions
+
+  - name: compile qtwebkit
+    shell: ../qtbase/bin/qmake
+    args:
+      chdir: "{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}/qtwebkit"
+
+  - name: make webkit
+    command: bash -lc 'make'
+    args:
+      chdir: "{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}/qtwebkit"
+
+  - name: launch gmake install
+    command: bash -lc 'gmake install'
+    args:
+      chdir: "{{ qtwk_download_path }}/qt-everywhere-opensource-src-{{ qtwk_version }}"
+
+  - name: create symlink for qmake
+    sudo: yes
+    shell: "ln -s /usr/local/Qt-{{ qtwk_version }}/bin/qmake /usr/bin/qmake"
+

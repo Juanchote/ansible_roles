@@ -1,5 +1,5 @@
 ---
 ruby_version: 2.0.0
-rvm_user: juanmanuel.rodulfo
+rvm_user:  '{{ remote_user }}'
 rvm_home: /usr/local/rvm
 rvm_bindir: '{{rvm_home}}/bin'

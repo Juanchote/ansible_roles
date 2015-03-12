@@ -1,0 +1,8 @@
+---
+  - name: change directory permissions
+    sudo: yes
+    shell: "chown -R {{ qtwk_user }} {{ qtwk_download_path}}/qt-everywhere-opensource-src-{{ qtwk_version }}"
+
+  - name: change gmake dir path permissions
+    sudo: yes
+    shell: "chown -R {{ qtwk_user }} /usr/local/Qt-{{ qtwk_version }}"
