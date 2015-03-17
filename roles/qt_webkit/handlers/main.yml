@@ -1,5 +1,5 @@
 ---
-  - name: change directory permissions
+  - name: change download path permissions
     sudo: yes
     shell: "chown -R {{ qtwk_user }} {{ qtwk_download_path}}/qt-everywhere-opensource-src-{{ qtwk_version }}"
 
