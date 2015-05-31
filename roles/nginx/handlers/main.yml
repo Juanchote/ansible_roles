@@ -1,0 +1,9 @@
+---
+  - name: start nginx
+    action: systemctl start nginx.service
+    sudo: yes
+    sudo_user: juanma
+  - name: enable nginx
+    action: systemctl enable nginx.service
+    sudo: yes
+    sudo_user: juanma

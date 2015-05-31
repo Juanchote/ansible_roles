@@ -1,0 +1,16 @@
+---
+  - name: required libraries
+    action: yum pkg={{ item }} state=installed
+    with_items:
+      - epel-release
+      - gcc
+    sudo: yes
+  - name: create nginx repo
+    template: src=nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo mode="u=rw,g=r,o=r"
+  - name: add signature key
+    rpm_key: state=present key=http://nginx.org/keys/nginx_signing.key
+  - name: install nginx
+    action: yum pkg=nginx state=installed
+    notify:
+      - enable nginx
+      - start nginx

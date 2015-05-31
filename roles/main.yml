@@ -1,0 +1,9 @@
+---
+  - name: install common libs
+    action: yum pkg={{ item }} state=installed
+    with_items:
+      - "'Development tools'"
+      - epel-release
+      - bzip2
+      - ncurses
+      - ncurses-devel

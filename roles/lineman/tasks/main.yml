@@ -1,0 +1,19 @@
+---
+  - name: required libraries
+    action: yum pkg={{ item }} state=installed
+    with_items:
+      - epel-release
+      - nodejs
+      - npm
+      - bzip2
+    sudo: yes
+  - name: install lineman
+    npm: name={{ item }} global=yes
+    with_items:
+      - lineman
+      - phantomjs
+    sudo: yes
+  - name: install lineman-angular
+    npm: name=lineman-angular
+    args:
+      chdir: /var/www/quenolosepamama-angular-frontend
